@@ -1,684 +1,592 @@
 import streamlit as st
 import pandas as pd
-import base64
-from PIL import Image
-import io
 
 # Set page configuration
 st.set_page_config(
-    page_title="VIP Ultimate Unit Converter",
-    page_icon="💎",
+    page_title="Modern Unit Converter",
+    page_icon="🔄",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
+# Add heading with your name
+st.markdown("## Developed by Aatfa Siddiqui", unsafe_allow_html=True)
+
+# st.markdown("<h2 style='text-align: center;'>Developed by Aatfa Siddiqui</h2>", unsafe_allow_html=True)
+
+# Custom CSS
 def add_custom_css():
     st.markdown("""
     <style>
-    /* Main container styling */
-    .main {
-    color: #FFD700;
-    font-family: 'Arial', sans-serif;
-    padding: 20px;
-    border-radius: 10px;
-    position: relative;
-    overflow: hidden;
-}
-
-.main::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 1;
-}
-
-.main > * {
-    position: relative;
-    z-index: 2;
-}
-
-#background-video {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
-    z-index: 0;
-}
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
     
-    /* Header styling */
-    .header {
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #1a1a1a;
+        color: #ffffff;
+    }
+    
+    .stApp {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    h1, h2, h3 {
+        color: #00ffff;
         text-align: center;
-        padding: 20px;
-        background: linear-gradient(135deg, #1c1c1c 0%, #2c2c2c 100%);
-        color: #FFD700;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 6px rgba(255, 215, 0, 0.1);
     }
     
-    .header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    }
-    
-    /* Card styling */
-    .card {
-        background-color: #1c1c1c;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(255, 215, 0, 0.1);
-        margin-bottom: 20px;
-        transition: transform 0.3s ease;
-    }
-    
-    .card:hover {
-        transform: translateY(-5px);
-    }
-    
-    /* Button styling */
-    .stButton>button {
-        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-        color: #000000;
-        border: none;
-        padding: 10px 24px;
-        border-radius: 5px;
+    .stButton > button {
+        background-color: #00ffff;
+        color: #1a1a1a;
         font-weight: bold;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
         transition: all 0.3s ease;
     }
     
-    .stButton>button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+    .stButton > button:hover {
+        background-color: #ff00ff;
+        color: #ffffff;
     }
     
-    /* Footer styling */
-    .footer {
-        text-align: center;
-        padding: 10px;
-        background-color: #1c1c1c;
-        border-radius: 10px;
-        margin-top: 20px;
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .header h1 {
-            font-size: 24px;
-        }
-        .card {
-            padding: 15px;
-        }
-    }
-    
-    /* Category title styling */
-    .category-title {
-        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-        color: #000000;
-        padding: 10px;
+    .stTextInput > div > div > input,
+    .stNumberInput > div > div > input {
+        background-color: #2a2a2a;
+        color: #ffffff;
+        border: 1px solid #00ffff;
         border-radius: 5px;
-        margin-bottom: 15px;
-        text-align: center;
     }
     
-    /* Result styling */
+    .stSelectbox > div > div > div {
+        background-color: #2a2a2a;
+        color: #ffffff;
+        border: 1px solid #00ffff;
+        border-radius: 5px;
+    }
+    
     .result {
-        background-color: #2c2c2c;
-        padding: 15px;
-        border-radius: 5px;
-        font-weight: bold;
-        text-align: center;
-        margin-top: 15px;
-        color: #FFD700;
-    }
-    
-    /* Developer credit */
-    .developer {
-        font-style: italic;
-        text-align: center;
-        margin-top: 10px;
-        color: #FFD700;
-    }
-
-    /* Input fields styling */
-    .stNumberInput input, .stSelectbox div[data-baseweb="select"] div {
-        background-color: #2c2c2c !important;
-        color: #FFD700 !important;
-        border-color: #FFD700 !important;
-    }
-
-    /* Label styling */
-    .stNumberInput label, .stSelectbox label {
-        color: #FFD700 !important;
-    }
-
-    /* Tabs styling */
-    .stTabs [data-baseweb="tab-list"] {
-        background-color: #1c1c1c !important;
-    }
-
-    .stTabs [data-baseweb="tab"] {
-        color: #FFD700 !important;
-    }
-
-    .stTabs [aria-selected="true"] {
-        background-color: #2c2c2c !important;
-        color: #FFD700 !important;
-    }
-
-    /* Table styling */
-    .stDataFrame {
-        background-color: #1c1c1c !important;
-    }
-
-    .stDataFrame th {
-        background-color: #2c2c2c !important;
-        color: #FFD700 !important;
-    }
-
-    .stDataFrame td {
-        color: #FFD700 !important;
-    }
-
-    /* Content wrapper for better readability */
-    .content-wrapper {
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: #2a2a2a;
+        color: #00ffff;
         padding: 20px;
         border-radius: 10px;
+        text-align: center;
+        font-size: 24px;
+        margin-top: 20px;
+        box-shadow: 0 0 10px #00ffff;
+    }
+    
+    .category-card {
+        background-color: #2a2a2a;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+    }
+    
+    .category-icon {
+        font-size: 48px;
+        margin-bottom: 10px;
+    }
+    
+    .footer {
+        text-align: center;
+        margin-top: 50px;
+        color: #888888;
+    }
+    
+    /* Neon text effect */
+    .neon-text {
+        color: #fff;
+        text-shadow:
+            0 0 7px #fff,
+            0 0 10px #fff,
+            0 0 21px #fff,
+            0 0 42px #0fa,
+            0 0 82px #0fa,
+            0 0 92px #0fa,
+            0 0 102px #0fa,
+            0 0 151px #0fa;
     }
     </style>
     """, unsafe_allow_html=True)
 
-def add_background_video():
-    st.markdown("""
-    <video autoplay muted loop id="background-video">
-        <source src="https://example.com/your-background-video.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-    """, unsafe_allow_html=True)
-
-# Conversion functions for different units
+# Conversion functions
 def convert_length(value, from_unit, to_unit):
-    # Conversion to meters (base unit)
+    # Conversion factors to meters
     length_to_meters = {
-        "Nanometer (nm)": 1e-9,
-        "Micrometer (μm)": 1e-6,
-        "Millimeter (mm)": 1e-3,
-        "Centimeter (cm)": 1e-2,
-        "Decimeter (dm)": 1e-1,
-        "Meter (m)": 1,
-        "Kilometer (km)": 1e3,
-        "Inch (in)": 0.0254,
-        "Foot (ft)": 0.3048,
-        "Yard (yd)": 0.9144,
-        "Mile (mi)": 1609.344,
-        "Nautical mile (nmi)": 1852
+        "Millimeter": 0.001,
+        "Centimeter": 0.01,
+        "Meter": 1,
+        "Kilometer": 1000,
+        "Inch": 0.0254,
+        "Foot": 0.3048,
+        "Yard": 0.9144,
+        "Mile": 1609.34,
+        "Nanometer": 1e-9,
+        "Micrometer": 1e-6,
+        "Decimeter": 0.1,
+        "Nautical Mile": 1852,
+        "Light Year": 9.461e+15,
+        "Parsec": 3.086e+16,
+        "Astronomical Unit": 1.496e+11,
+        "Hand": 0.1016,
+        "Fathom": 1.8288,
+        "Furlong": 201.168,
+        "League": 4828.03
     }
-    
-    # Convert from input unit to meters, then to output unit
-    meters = value * length_to_meters[from_unit]
-    return meters / length_to_meters[to_unit]
+    return value * length_to_meters[from_unit] / length_to_meters[to_unit]
 
 def convert_weight(value, from_unit, to_unit):
-    # Conversion to grams (base unit)
+    # Conversion factors to grams
     weight_to_grams = {
-        "Microgram (μg)": 1e-6,
-        "Milligram (mg)": 1e-3,
-        "Gram (g)": 1,
-        "Kilogram (kg)": 1e3,
-        "Metric ton (t)": 1e6,
-        "Ounce (oz)": 28.34952,
-        "Pound (lb)": 453.59237,
-        "Stone (st)": 6350.29318,
-        "US ton (short)": 907184.74,
-        "Imperial ton (long)": 1016046.9088
+        "Milligram": 0.001,
+        "Gram": 1,
+        "Kilogram": 1000,
+        "Ounce": 28.3495,
+        "Pound": 453.592,
+        "Stone": 6350.29,
+        "Ton (Metric)": 1e+6,
+        "Ton (US)": 907185,
+        "Ton (UK)": 1016050,
+        "Carat": 0.2,
+        "Grain": 0.0648,
+        "Dram": 1.772,
+        "Hundredweight (US)": 45359.2,
+        "Hundredweight (UK)": 50802.3,
+        "Microgram": 1e-6,
+        "Atomic Mass Unit": 1.66053886e-24
     }
-    
-    # Convert from input unit to grams, then to output unit
-    grams = value * weight_to_grams[from_unit]
-    return grams / weight_to_grams[to_unit]
+    return value * weight_to_grams[from_unit] / weight_to_grams[to_unit]
 
 def convert_temperature(value, from_unit, to_unit):
-    # Direct conversion formulas for temperature
-    if from_unit == "Celsius (°C)":
-        if to_unit == "Fahrenheit (°F)":
+    if from_unit == "Celsius":
+        if to_unit == "Fahrenheit":
             return (value * 9/5) + 32
-        elif to_unit == "Kelvin (K)":
+        elif to_unit == "Kelvin":
             return value + 273.15
-        else:
-            return value
-    elif from_unit == "Fahrenheit (°F)":
-        if to_unit == "Celsius (°C)":
+        elif to_unit == "Rankine":
+            return (value + 273.15) * 9/5
+        elif to_unit == "Réaumur":
+            return value * 4/5
+    elif from_unit == "Fahrenheit":
+        if to_unit == "Celsius":
             return (value - 32) * 5/9
-        elif to_unit == "Kelvin (K)":
+        elif to_unit == "Kelvin":
             return (value - 32) * 5/9 + 273.15
-        else:
-            return value
-    elif from_unit == "Kelvin (K)":
-        if to_unit == "Celsius (°C)":
+        elif to_unit == "Rankine":
+            return value + 459.67
+        elif to_unit == "Réaumur":
+            return (value - 32) * 4/9
+    elif from_unit == "Kelvin":
+        if to_unit == "Celsius":
             return value - 273.15
-        elif to_unit == "Fahrenheit (°F)":
+        elif to_unit == "Fahrenheit":
             return (value - 273.15) * 9/5 + 32
-        else:
-            return value
-
-def convert_area(value, from_unit, to_unit):
-    # Conversion to square meters (base unit)
-    area_to_sq_meters = {
-        "Square millimeter (mm²)": 1e-6,
-        "Square centimeter (cm²)": 1e-4,
-        "Square meter (m²)": 1,
-        "Hectare (ha)": 1e4,
-        "Square kilometer (km²)": 1e6,
-        "Square inch (in²)": 0.00064516,
-        "Square foot (ft²)": 0.09290304,
-        "Square yard (yd²)": 0.83612736,
-        "Acre": 4046.8564224,
-        "Square mile (mi²)": 2589988.110336
-    }
-    
-    # Convert from input unit to square meters, then to output unit
-    sq_meters = value * area_to_sq_meters[from_unit]
-    return sq_meters / area_to_sq_meters[to_unit]
+        elif to_unit == "Rankine":
+            return value * 9/5
+        elif to_unit == "Réaumur":
+            return (value - 273.15) * 4/5
+    elif from_unit == "Rankine":
+        if to_unit == "Celsius":
+            return (value - 491.67) * 5/9
+        elif to_unit == "Fahrenheit":
+            return value - 459.67
+        elif to_unit == "Kelvin":
+            return value * 5/9
+        elif to_unit == "Réaumur":
+            return (value - 491.67) * 4/9
+    elif from_unit == "Réaumur":
+        if to_unit == "Celsius":
+            return value * 5/4
+        elif to_unit == "Fahrenheit":
+            return value * 9/4 + 32
+        elif to_unit == "Kelvin":
+            return value * 5/4 + 273.15
+        elif to_unit == "Rankine":
+            return value * 9/4 + 491.67
+    return value
 
 def convert_volume(value, from_unit, to_unit):
-    # Conversion to liters (base unit)
+    # Conversion factors to liters
     volume_to_liters = {
-        "Milliliter (ml)": 1e-3,
-        "Cubic centimeter (cm³)": 1e-3,
-        "Liter (L)": 1,
-        "Cubic meter (m³)": 1e3,
-        "US teaspoon": 0.00492892,
-        "US tablespoon": 0.01478676,
-        "US fluid ounce (fl oz)": 0.02957353,
-        "US cup": 0.2365882,
-        "US pint": 0.4731765,
-        "US quart": 0.9463529,
-        "US gallon": 3.78541,
-        "Imperial fluid ounce": 0.0284131,
-        "Imperial pint": 0.56826125,
-        "Imperial quart": 1.1365225,
-        "Imperial gallon": 4.54609
+        "Milliliter": 0.001,
+        "Liter": 1,
+        "Cubic Meter": 1000,
+        "Fluid Ounce (US)": 0.0295735,
+        "Cup (US)": 0.236588,
+        "Pint (US)": 0.473176,
+        "Quart (US)": 0.946353,
+        "Gallon (US)": 3.78541,
+        "Cubic Centimeter": 0.001,
+        "Cubic Inch": 0.0163871,
+        "Cubic Foot": 28.3168,
+        "Cubic Yard": 764.555,
+        "Teaspoon (US)": 0.00492892,
+        "Tablespoon (US)": 0.0147868,
+        "Fluid Ounce (UK)": 0.0284131,
+        "Pint (UK)": 0.568261,
+        "Quart (UK)": 1.13652,
+        "Gallon (UK)": 4.54609,
+        "Barrel (Oil)": 158.987,
+        "Barrel (US)": 119.240,
+        "Barrel (UK)": 163.659
     }
-    
-    # Convert from input unit to liters, then to output unit
-    liters = value * volume_to_liters[from_unit]
-    return liters / volume_to_liters[to_unit]
+    return value * volume_to_liters[from_unit] / volume_to_liters[to_unit]
 
 def convert_time(value, from_unit, to_unit):
-    # Conversion to seconds (base unit)
+    # Conversion factors to seconds
     time_to_seconds = {
-        "Nanosecond (ns)": 1e-9,
-        "Microsecond (μs)": 1e-6,
-        "Millisecond (ms)": 1e-3,
-        "Second (s)": 1,
-        "Minute (min)": 60,
-        "Hour (h)": 3600,
-        "Day (d)": 86400,
-        "Week (wk)": 604800,
-        "Month (avg)": 2629746,
+        "Second": 1,
+        "Minute": 60,
+        "Hour": 3600,
+        "Day": 86400,
+        "Week": 604800,
+        "Month (30 days)": 2592000,
         "Year (365 days)": 31536000,
+        "Millisecond": 0.001,
+        "Microsecond": 1e-6,
+        "Nanosecond": 1e-9,
+        "Picosecond": 1e-12,
         "Decade": 315360000,
-        "Century": 3153600000
+        "Century": 3153600000,
+        "Millennium": 31536000000,
+        "Fortnight": 1209600
     }
-    
-    # Convert from input unit to seconds, then to output unit
-    seconds = value * time_to_seconds[from_unit]
-    return seconds / time_to_seconds[to_unit]
+    return value * time_to_seconds[from_unit] / time_to_seconds[to_unit]
+
+def convert_area(value, from_unit, to_unit):
+    # Conversion factors to square meters
+    area_to_sq_meters = {
+        "Square Millimeter": 1e-6,
+        "Square Centimeter": 1e-4,
+        "Square Meter": 1,
+        "Square Kilometer": 1e+6,
+        "Square Inch": 0.00064516,
+        "Square Foot": 0.092903,
+        "Square Yard": 0.836127,
+        "Square Mile": 2.59e+6,
+        "Acre": 4046.86,
+        "Hectare": 10000,
+        "Are": 100,
+        "Barn": 1e-28,
+        "Homestead": 647497.027584
+    }
+    return value * area_to_sq_meters[from_unit] / area_to_sq_meters[to_unit]
 
 def convert_speed(value, from_unit, to_unit):
-    # Conversion to meters per second (base unit)
+    # Conversion factors to meters per second
     speed_to_mps = {
-        "Meter per second (m/s)": 1,
-        "Kilometer per hour (km/h)": 0.277778,
-        "Mile per hour (mph)": 0.44704,
-        "Foot per second (ft/s)": 0.3048,
-        "Knot (kn)": 0.514444,
-        "Mach (at sea level)": 340.29
+        "Meter per Second": 1,
+        "Kilometer per Hour": 0.277778,
+        "Mile per Hour": 0.44704,
+        "Knot": 0.514444,
+        "Foot per Second": 0.3048,
+        "Inch per Second": 0.0254,
+        "Speed of Light": 299792458,
+        "Speed of Sound (Air)": 343,
+        "Mach (at std. atmosphere)": 343
     }
-    
-    # Convert from input unit to meters per second, then to output unit
-    mps = value * speed_to_mps[from_unit]
-    return mps / speed_to_mps[to_unit]
-
-def convert_digital(value, from_unit, to_unit):
-    # Conversion to bytes (base unit)
-    digital_to_bytes = {
-        "Bit": 0.125,
-        "Byte": 1,
-        "Kilobyte (KB)": 1e3,
-        "Megabyte (MB)": 1e6,
-        "Gigabyte (GB)": 1e9,
-        "Terabyte (TB)": 1e12,
-        "Petabyte (PB)": 1e15,
-        "Kibibyte (KiB)": 1024,
-        "Mebibyte (MiB)": 1048576,
-        "Gibibyte (GiB)": 1073741824,
-        "Tebibyte (TiB)": 1099511627776,
-        "Pebibyte (PiB)": 1125899906842624
-    }
-    
-    # Convert from input unit to bytes, then to output unit
-    bytes_val = value * digital_to_bytes[from_unit]
-    return bytes_val / digital_to_bytes[to_unit]
+    return value * speed_to_mps[from_unit] / speed_to_mps[to_unit]
 
 def convert_pressure(value, from_unit, to_unit):
-    # Conversion to pascals (base unit)
-    pressure_to_pascals = {
-        "Pascal (Pa)": 1,
-        "Kilopascal (kPa)": 1e3,
-        "Megapascal (MPa)": 1e6,
-        "Bar": 1e5,
-        "Atmosphere (atm)": 101325,
+    # Conversion factors to pascals
+    pressure_to_pascal = {
+        "Pascal": 1,
+        "Kilopascal": 1000,
+        "Megapascal": 1e+6,
+        "Bar": 1e+5,
+        "Atmosphere": 101325,
         "Torr": 133.322,
-        "Pound per square inch (psi)": 6894.76,
-        "Millimeter of mercury (mmHg)": 133.322
+        "Pound per Square Inch": 6894.76,
+        "Pound per Square Foot": 47.8803,
+        "Millimeter of Mercury": 133.322
     }
-    
-    # Convert from input unit to pascals, then to output unit
-    pascals = value * pressure_to_pascals[from_unit]
-    return pascals / pressure_to_pascals[to_unit]
+    return value * pressure_to_pascal[from_unit] / pressure_to_pascal[to_unit]
 
 def convert_energy(value, from_unit, to_unit):
-    # Conversion to joules (base unit)
+    # Conversion factors to joules
     energy_to_joules = {
-        "Joule (J)": 1,
-        "Kilojoule (kJ)": 1e3,
-        "Calorie (cal)": 4.184,
-        "Kilocalorie (kcal)": 4184,
-        "Watt-hour (Wh)": 3600,
-        "Kilowatt-hour (kWh)": 3.6e6,
-        "Electronvolt (eV)": 1.602176634e-19,
-        "British Thermal Unit (BTU)": 1055.06,
-        "Foot-pound (ft⋅lb)": 1.355818
+        "Joule": 1,
+        "Kilojoule": 1000,
+        "Calorie": 4.184,
+        "Kilocalorie": 4184,
+        "Watt Hour": 3600,
+        "Kilowatt Hour": 3.6e+6,
+        "Electron Volt": 1.602e-19,
+        "British Thermal Unit": 1055.06,
+        "US Therm": 1.055e+8,
+        "Foot-Pound": 1.35582
     }
-    
-    # Convert from input unit to joules, then to output unit
-    joules = value * energy_to_joules[from_unit]
-    return joules / energy_to_joules[to_unit]
+    return value * energy_to_joules[from_unit] / energy_to_joules[to_unit]
+
+def convert_power(value, from_unit, to_unit):
+    # Conversion factors to watts
+    power_to_watts = {
+        "Watt": 1,
+        "Kilowatt": 1000,
+        "Megawatt": 1e+6,
+        "Horsepower (Mechanical)": 745.7,
+        "Horsepower (Metric)": 735.5,
+        "Foot-Pound per Second": 1.35582,
+        "BTU per Hour": 0.293071,
+        "Calorie per Second": 4.184
+    }
+    return value * power_to_watts[from_unit] / power_to_watts[to_unit]
+
+def convert_data(value, from_unit, to_unit):
+    # Conversion factors to bytes
+    data_to_bytes = {
+        "Bit": 0.125,
+        "Byte": 1,
+        "Kilobit": 125,
+        "Kilobyte": 1000,
+        "Megabit": 125000,
+        "Megabyte": 1e+6,
+        "Gigabit": 1.25e+8,
+        "Gigabyte": 1e+9,
+        "Terabit": 1.25e+11,
+        "Terabyte": 1e+12,
+        "Petabit": 1.25e+14,
+        "Petabyte": 1e+15
+    }
+    return value * data_to_bytes[from_unit] / data_to_bytes[to_unit]
 
 def convert_fuel_economy(value, from_unit, to_unit):
-    # For fuel economy, we'll convert everything to kilometers per liter
-    fuel_economy_to_kpl = {
-        "Miles per gallon (US)": 0.425144,
-        "Miles per gallon (Imperial)": 0.354006,
-        "Kilometers per liter (km/L)": 1,
-        "Liters per 100 kilometers (L/100km)": lambda x: 100/x
+    # Conversion to kilometers per liter
+    fuel_to_kpl = {
+        "Miles per Gallon (US)": 0.425144,
+        "Miles per Gallon (UK)": 0.354006,
+        "Kilometers per Liter": 1,
+        "Liters per 100 Kilometers": lambda x: 100 / x if x != 0 else float('inf')
     }
     
-    # Special handling for L/100km which is inversely related to other units
-    if from_unit == "Liters per 100 kilometers (L/100km)":
-        kpl = 100 / value
+    # Special case for L/100km which is inverse
+    if from_unit == "Liters per 100 Kilometers":
+        kpl = 100 / value if value != 0 else float('inf')
     else:
-        kpl = value * fuel_economy_to_kpl[from_unit]
+        kpl = value * fuel_to_kpl[from_unit] if isinstance(fuel_to_kpl[from_unit], (int, float)) else fuel_to_kpl[from_unit](value)
     
-    if to_unit == "Liters per 100 kilometers (L/100km)":
-        return 100 / kpl
+    if to_unit == "Liters per 100 Kilometers":
+        return 100 / kpl if kpl != 0 else float('inf')
     else:
-        return kpl / fuel_economy_to_kpl[to_unit]
+        return kpl / (fuel_to_kpl[to_unit] if isinstance(fuel_to_kpl[to_unit], (int, float)) else 1)
 
 def convert_angle(value, from_unit, to_unit):
-    # Conversion to radians (base unit)
+    # Conversion factors to radians
     angle_to_radians = {
-        "Degree (°)": 0.0174533,
-        "Radian (rad)": 1,
-        "Gradian (grad)": 0.015708,
-        "Arcminute (′)": 0.000290888,
-        "Arcsecond (″)": 4.84814e-6,
-        "Turn/Cycle": 6.28319
+        "Degree": 0.0174533,
+        "Radian": 1,
+        "Gradian": 0.015708,
+        "Minute of Arc": 0.000290888,
+        "Second of Arc": 4.84814e-6,
+        "Turn": 6.28319
     }
-    
-    # Convert from input unit to radians, then to output unit
-    radians = value * angle_to_radians[from_unit]
-    return radians / angle_to_radians[to_unit]
+    return value * angle_to_radians[from_unit] / angle_to_radians[to_unit]
 
-# Define unit categories and their units
+def convert_frequency(value, from_unit, to_unit):
+    # Conversion factors to hertz
+    frequency_to_hertz = {
+        "Hertz": 1,
+        "Kilohertz": 1000,
+        "Megahertz": 1e+6,
+        "Gigahertz": 1e+9,
+        "Cycle per Second": 1,
+        "RPM": 1/60,
+        "Degree per Second": 1/360
+    }
+    return value * frequency_to_hertz[from_unit] / frequency_to_hertz[to_unit]
+
+def convert_currency(value, from_unit, to_unit):
+    # Example rates (would need to be updated with real-time data in a real app)
+    currency_to_usd = {
+        "USD": 1,
+        "EUR": 1.09,
+        "GBP": 1.27,
+        "JPY": 0.0067,
+        "CAD": 0.74,
+        "AUD": 0.66,
+        "CHF": 1.13,
+        "CNY": 0.14,
+        "INR": 0.012,
+        "BRL": 0.18,
+        "PKR": 0.00357588,
+    }
+    return value * currency_to_usd[from_unit] / currency_to_usd[to_unit]
+
+# Unit categories
 unit_categories = {
     "Length": {
-        "units": [
-            "Nanometer (nm)", "Micrometer (μm)", "Millimeter (mm)", "Centimeter (cm)", 
-            "Decimeter (dm)", "Meter (m)", "Kilometer (km)", "Inch (in)", "Foot (ft)", 
-            "Yard (yd)", "Mile (mi)", "Nautical mile (nmi)"
-        ],
+        "units": ["Millimeter", "Centimeter", "Meter", "Kilometer", "Inch", "Foot", "Yard", "Mile", 
+                 "Nanometer", "Micrometer", "Decimeter", "Nautical Mile", "Light Year", "Parsec", 
+                 "Astronomical Unit", "Hand", "Fathom", "Furlong", "League"],
         "convert_function": convert_length,
         "icon": "📏"
     },
-    "Weight/Mass": {
-        "units": [
-            "Microgram (μg)", "Milligram (mg)", "Gram (g)", "Kilogram (kg)", 
-            "Metric ton (t)", "Ounce (oz)", "Pound (lb)", "Stone (st)", 
-            "US ton (short)", "Imperial ton (long)"
-        ],
+    "Weight": {
+        "units": ["Milligram", "Gram", "Kilogram", "Ounce", "Pound", "Stone", "Ton (Metric)", 
+                 "Ton (US)", "Ton (UK)", "Carat", "Grain", "Dram", "Hundredweight (US)", 
+                 "Hundredweight (UK)", "Microgram", "Atomic Mass Unit"],
         "convert_function": convert_weight,
         "icon": "⚖️"
     },
     "Temperature": {
-        "units": ["Celsius (°C)", "Fahrenheit (°F)", "Kelvin (K)"],
+        "units": ["Celsius", "Fahrenheit", "Kelvin", "Rankine", "Réaumur"],
         "convert_function": convert_temperature,
         "icon": "🌡️"
     },
-    "Area": {
-        "units": [
-            "Square millimeter (mm²)", "Square centimeter (cm²)", "Square meter (m²)", 
-            "Hectare (ha)", "Square kilometer (km²)", "Square inch (in²)", 
-            "Square foot (ft²)", "Square yard (yd²)", "Acre", "Square mile (mi²)"
-        ],
-        "convert_function": convert_area,
-        "icon": "📐"
-    },
     "Volume": {
-        "units": [
-            "Milliliter (ml)", "Cubic centimeter (cm³)", "Liter (L)", "Cubic meter (m³)", 
-            "US teaspoon", "US tablespoon", "US fluid ounce (fl oz)", "US cup", 
-            "US pint", "US quart", "US gallon", "Imperial fluid ounce", 
-            "Imperial pint", "Imperial quart", "Imperial gallon"
-        ],
+        "units": ["Milliliter", "Liter", "Cubic Meter", "Fluid Ounce (US)", "Cup (US)", "Pint (US)", 
+                 "Quart (US)", "Gallon (US)", "Cubic Centimeter", "Cubic Inch", "Cubic Foot", 
+                 "Cubic Yard", "Teaspoon (US)", "Tablespoon (US)", "Fluid Ounce (UK)", "Pint (UK)", 
+                 "Quart (UK)", "Gallon (UK)", "Barrel (Oil)", "Barrel (US)", "Barrel (UK)"],
         "convert_function": convert_volume,
         "icon": "🧪"
     },
     "Time": {
-        "units": [
-            "Nanosecond (ns)", "Microsecond (μs)", "Millisecond (ms)", "Second (s)", 
-            "Minute (min)", "Hour (h)", "Day (d)", "Week (wk)", "Month (avg)", 
-            "Year (365 days)", "Decade", "Century"
-        ],
+        "units": ["Second", "Minute", "Hour", "Day", "Week", "Month (30 days)", "Year (365 days)",
+                 "Millisecond", "Microsecond", "Nanosecond", "Picosecond", "Decade", "Century", 
+                 "Millennium", "Fortnight"],
         "convert_function": convert_time,
         "icon": "⏱️"
     },
+    "Area": {
+        "units": ["Square Millimeter", "Square Centimeter", "Square Meter", "Square Kilometer", 
+                 "Square Inch", "Square Foot", "Square Yard", "Square Mile", "Acre", "Hectare", 
+                 "Are", "Barn", "Homestead"],
+        "convert_function": convert_area,
+        "icon": "📐"
+    },
     "Speed": {
-        "units": [
-            "Meter per second (m/s)", "Kilometer per hour (km/h)", "Mile per hour (mph)", 
-            "Foot per second (ft/s)", "Knot (kn)", "Mach (at sea level)"
-        ],
+        "units": ["Meter per Second", "Kilometer per Hour", "Mile per Hour", "Knot", "Foot per Second", 
+                 "Inch per Second", "Speed of Light", "Speed of Sound (Air)", "Mach (at std. atmosphere)"],
         "convert_function": convert_speed,
         "icon": "🚀"
     },
-    "Digital Storage": {
-        "units": [
-            "Bit", "Byte", "Kilobyte (KB)", "Megabyte (MB)", "Gigabyte (GB)", 
-            "Terabyte (TB)", "Petabyte (PB)", "Kibibyte (KiB)", "Mebibyte (MiB)", 
-            "Gibibyte (GiB)", "Tebibyte (TiB)", "Pebibyte (PiB)"
-        ],
-        "convert_function": convert_digital,
-        "icon": "💾"
-    },
     "Pressure": {
-        "units": [
-            "Pascal (Pa)", "Kilopascal (kPa)", "Megapascal (MPa)", "Bar", 
-            "Atmosphere (atm)", "Torr", "Pound per square inch (psi)", 
-            "Millimeter of mercury (mmHg)"
-        ],
+        "units": ["Pascal", "Kilopascal", "Megapascal", "Bar", "Atmosphere", "Torr", 
+                 "Pound per Square Inch", "Pound per Square Foot", "Millimeter of Mercury"],
         "convert_function": convert_pressure,
         "icon": "🔄"
     },
     "Energy": {
-        "units": [
-            "Joule (J)", "Kilojoule (kJ)", "Calorie (cal)", "Kilocalorie (kcal)", 
-            "Watt-hour (Wh)", "Kilowatt-hour (kWh)", "Electronvolt (eV)", 
-            "British Thermal Unit (BTU)", "Foot-pound (ft⋅lb)"
-        ],
+        "units": ["Joule", "Kilojoule", "Calorie", "Kilocalorie", "Watt Hour", "Kilowatt Hour", 
+                 "Electron Volt", "British Thermal Unit", "US Therm", "Foot-Pound"],
         "convert_function": convert_energy,
         "icon": "⚡"
     },
+    "Power": {
+        "units": ["Watt", "Kilowatt", "Megawatt", "Horsepower (Mechanical)", "Horsepower (Metric)", 
+                 "Foot-Pound per Second", "BTU per Hour", "Calorie per Second"],
+        "convert_function": convert_power,
+        "icon": "💪"
+    },
+    "Data": {
+        "units": ["Bit", "Byte", "Kilobit", "Kilobyte", "Megabit", "Megabyte", "Gigabit", 
+                 "Gigabyte", "Terabit", "Terabyte", "Petabit", "Petabyte"],
+        "convert_function": convert_data,
+        "icon": "💾"
+    },
     "Fuel Economy": {
-        "units": [
-            "Miles per gallon (US)", "Miles per gallon (Imperial)", 
-            "Kilometers per liter (km/L)", "Liters per 100 kilometers (L/100km)"
-        ],
+        "units": ["Miles per Gallon (US)", "Miles per Gallon (UK)", "Kilometers per Liter", 
+                 "Liters per 100 Kilometers"],
         "convert_function": convert_fuel_economy,
-        "icon": "🚗"
+        "icon": "⛽"
     },
     "Angle": {
-        "units": [
-            "Degree (°)", "Radian (rad)", "Gradian (grad)", 
-            "Arcminute (′)", "Arcsecond (″)", "Turn/Cycle"
-        ],
+        "units": ["Degree", "Radian", "Gradian", "Minute of Arc", "Second of Arc", "Turn"],
         "convert_function": convert_angle,
         "icon": "📐"
+    },
+    "Frequency": {
+        "units": ["Hertz", "Kilohertz", "Megahertz", "Gigahertz", "Cycle per Second", 
+                 "RPM", "Degree per Second"],
+        "convert_function": convert_frequency,
+        "icon": "🔊"
+    },
+    "Currency": {
+        "units": ["USD", "EUR", "GBP", "JPY", "CAD", "AUD", "CHF", "CNY", "INR", "BRL", "PKR"],
+        "convert_function": convert_currency,
+        "icon": "💰"
     }
 }
 
-# Function to create the home page
 def home_page():
-    st.markdown('<div class="content-wrapper">', unsafe_allow_html=True)
-    st.markdown('<div class="header"><h1>VIP Ultimate Unit Converter</h1></div>', unsafe_allow_html=True)
-    
-    col1, col2, col3 = st.columns([1, 2, 1])
-    
-    with col2:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown("""
-        <h2 style="text-align: center; color: #FFD700;">Welcome to the VIP Unit Converter</h2>
-        <p style="text-align: center; color: #FFD700;">A luxury tool for converting between different units of measurement.</p>
-        <p style="text-align: center; color: #FFD700;">Explore our premium conversion categories:</p>
-        """, unsafe_allow_html=True)
-        
-        cols = st.columns(3)
-        for i, (category, info) in enumerate(unit_categories.items()):
-            with cols[i % 3]:
-                st.markdown(f"""
-                <div style="text-align: center; margin-bottom: 15px;">
-                    <div style="font-size: 24px;">{info['icon']}</div>
-                    <div style="color: #FFD700;">{category}</div>
-                </div>
-                """, unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        if st.button("✨ OPEN LUXURY CONVERTER ✨", key="open_converter"):
-            st.session_state.page = "converter"
-            st.rerun()
-        
-        st.markdown('<div class="developer">Developed by Aatfa Siddiqui</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<h1 class="neon-text"> Unit Converter</h1>', unsafe_allow_html=True)
+    st.write("Welcome to the  Unit Converter. Choose a category to start converting!")
 
-# Function to create the converter page
-def converter_page():
-    st.markdown('<div class="content-wrapper">', unsafe_allow_html=True)
-    st.markdown('<div class="header"><h1>VIP Ultimate Unit Converter</h1></div>', unsafe_allow_html=True)
+    # Create rows of categories (3 per row)
+    categories = list(unit_categories.items())
+    num_rows = (len(categories) + 2) // 3  # Calculate number of rows needed
     
-    if st.button("← Back to Home", key="back_home"):
-        st.session_state.page = "home"
-        st.rerun()
-    
-    tabs = st.tabs([f"{info['icon']} {category}" for category, info in unit_categories.items()])
-    
-    for i, (category, info) in enumerate(unit_categories.items()):
-        with tabs[i]:
-            st.markdown(f'<div class="category-title"><h3>{category} Converter</h3></div>', unsafe_allow_html=True)
-            
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                value = st.number_input(f"Enter {category} value:", value=1.0, key=f"value_{category}")
-                from_unit = st.selectbox("From unit:", options=info["units"], index=0, key=f"from_{category}")
-            
-            with col2:
-                st.text(" ")
-                st.text(" ")
-                to_unit = st.selectbox("To unit:", options=info["units"], index=1 if len(info["units"]) > 1 else 0, key=f"to_{category}")
-            
-            if from_unit and to_unit:
-                try:
-                    result = info["convert_function"](value, from_unit, to_unit)
-                    result_str = f"{result:.6e}" if abs(result) >= 1e6 or abs(result) <= 1e-6 and result != 0 else f"{result:.6g}"
-                    
+    for i in range(num_rows):
+        cols = st.columns(3)
+        for j in range(3):
+            idx = i * 3 + j
+            if idx < len(categories):
+                category, info = categories[idx]
+                with cols[j]:
                     st.markdown(f"""
-                    <div class="result">
-                        {value} {from_unit} = {result_str} {to_unit}
+                    <div class="category-card">
+                        <div class="category-icon">{info['icon']}</div>
+                        <h3>{category}</h3>
                     </div>
                     """, unsafe_allow_html=True)
-                    
-                    st.markdown("<h4 style='color: #FFD700; margin-top: 20px;'>VIP Conversion Table</h4>", unsafe_allow_html=True)
-                    
-                    if value != 0:
-                        multipliers = [0.01, 0.1, 0.5, 1, 2, 5, 10, 100]
-                        values = [value * m for m in multipliers]
-                    else:
-                        values = [0, 1, 2, 5, 10, 100]
-                    
-                    df = pd.DataFrame({
-                        f"{from_unit}": values,
-                        f"{to_unit}": [info["convert_function"](v, from_unit, to_unit) for v in values]
-                    })
-                    
-                    for col in df.columns:
-                        df[col] = df[col].apply(lambda x: f"{x:.6g}" if abs(x) >= 1e-6 and abs(x) < 1e6 else f"{x:.6e}")
-                    
-                    st.dataframe(df, use_container_width=True)
-                    
-                except Exception as e:
-                    st.error(f"Error in conversion: {e}")
-            
-            st.markdown("<h4 style='color: #FFD700; margin-top: 20px;'>Conversion Formula</h4>", unsafe_allow_html=True)
-            
-            if category == "Temperature":
-                formula = get_temperature_formula(from_unit, to_unit)
-            else:
-                formula = f"Conversion factor: 1 {from_unit} = {info['convert_function'](1, from_unit, to_unit):.6g} {to_unit}"
-            
-            st.markdown(f"<div style='background-color: #2c2c2c; padding: 10px; border-radius: 5px; color: #FFD700;'>{formula}</div>", unsafe_allow_html=True)
+                    if st.button(f"Convert {category}", key=f"btn_{category}"):
+                        st.session_state.page = category
+                        st.rerun()
+
+def converter_page(category):
+    st.markdown(f'<h1 class="neon-text">{category} Converter</h1>', unsafe_allow_html=True)
     
-    st.markdown('<div class="developer">Developed by Aatfa Siddiqui</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        value = st.number_input("Enter value:", value=1.0, step=0.1)
+        from_unit = st.selectbox("From:", unit_categories[category]["units"], key="from_unit")
+    
+    with col2:
+        to_unit = st.selectbox("To:", unit_categories[category]["units"], key="to_unit")
+    
+    if st.button("Convert"):
+        result = unit_categories[category]["convert_function"](value, from_unit, to_unit)
+        st.markdown(f"""
+        <div class="result">
+            {value} {from_unit} = {result:.4f} {to_unit}
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Conversion table
+    st.subheader("Conversion Table")
+    table_values = [0.1, 1, 10, 100, 1000]
+    df = pd.DataFrame({
+        f"{from_unit}": table_values,
+        f"{to_unit}": [unit_categories[category]["convert_function"](v, from_unit, to_unit) for v in table_values]
+    })
+    st.table(df)
+    
+    if st.button("Back to Home"):
+        st.session_state.page = "home"
+        st.rerun()
 
-def get_temperature_formula(from_unit, to_unit):
-    formulas = {
-        ("Celsius (°C)", "Fahrenheit (°F)"): "°F = (°C × 9/5) + 32",
-        ("Fahrenheit (°F)", "Celsius (°C)"): "°C = (°F - 32) × 5/9",
-        ("Celsius (°C)", "Kelvin (K)"): "K = °C + 273.15",
-        ("Kelvin (K)", "Celsius (°C)"): "°C = K - 273.15",
-        ("Fahrenheit (°F)", "Kelvin (K)"): "K = (°F - 32) × 5/9 + 273.15",
-        ("Kelvin (K)", "Fahrenheit (°F)"): "°F = (K - 273.15) × 9/5 + 32"
-    }
-    return formulas.get((from_unit, to_unit), "Direct conversion (same unit)")
-
-# Main function
 def main():
-    # Add custom CSS
     add_custom_css()
     
-    # Add background video
-    add_background_video()
-    
-    # Initialize session state for page navigation if not already set
-    if 'page' not in st.session_state:
+    if "page" not in st.session_state:
         st.session_state.page = "home"
     
-    # Display the appropriate page based on session state
     if st.session_state.page == "home":
         home_page()
-    else:
-        converter_page()
+    elif st.session_state.page in unit_categories:
+        converter_page(st.session_state.page)
+    
+    st.markdown('<div class="footer">DEVELOPED BY AATFA SIDDIQUI</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
-
